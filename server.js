@@ -30,30 +30,28 @@ app.get('/api', (req, res) => {
 
 //POST API route
 app.post('/api', (req, res) => {
-    //destructure req.body
-    const { title, text } = req.body;
-    console.log(req.body);
+    //create response that shows our request in json format
+    res.json(req.body);
 
-    //validation to check for both title and text properties present
-    // if (title && text) {
-    //     const newNote = {
-    //         title,
-    //         text
-    //     };
-        //add to db.json file
-        fs.writeFile(
-            path.join(__dirname + '/Develop/db/db.json'), 
-            JSON.stringify(newNote), (err) => {
-            if(err) {
-                console.log('something went wrong');
-            } else {
-                console.log('success');
-            }
+        //to append new content to db.json, we need to read the file  
+    fs.readFile('Develop/db/db.json', 'utf-8', function (err, data) {
+        if (err) throw err
+        //then convert it's contents to a JS object using JSON.parse
+        var objectArr = JSON.parse(data)
+        //push the object to the objectArr
+        objectArr.push(req.body)
+        //we now have an array with an object
+        console.log(objectArr)
+
+        //create new file with new objectArr and convert the data into JSON format
+        fs.writeFile('Develop/db/db.json', JSON.stringify(objectArr), 'utf-8', function (err) {
+            if (err) throw err
+            console.log('Done!')
         })
-    // } else {
-    //     res.status(400).send('Post not properly formatted.')
-    // }
+    })
 })
+    
+    
 
 
 
@@ -62,12 +60,6 @@ app.listen(PORT, () => {
 });
 
 
-
-// function validateBody(body) {
-//     if (!body.title || typeof body.title !== 'string') {
-//         return false;
-//     }
-//     if (!body.text || typeof body.text !== 'string') {
-//         return false;
-//     }
-// }N
+//   need to add validation to post request route 
+//   why is data formatting all squished in db.json after posting?
+//   insomnia is requiring square brackets...this makes json file have an array inside the existing array...likely because im using array push method...look into another solution
