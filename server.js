@@ -1,57 +1,69 @@
 //import express package and initialize app variable by setting it to value of express()
-const { Console } = require('console');
+
 const express = require('express');
 const app = express();
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const PORT = 3005;
 const fs = require('fs');
 
 //require db.json file
-const db = require('./Develop/db/db.json')
+let db = require('./db/db.json');
 
 //middleware
 app.use(express.json());
+app.use(express.static('public'));
 
 
 //add static routes for notes.html page and index.html page
 app.get('/notes', (req, res) => {
-    res.sendFile(__dirname + '/Develop/public/notes.html')
+    res.sendFile(__dirname + '/public/notes.html')
 })
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/Develop/public/index.html')
+    res.sendFile(__dirname + '/public/index.html')
 })
 
 // GET API route
-app.get('/api', (req, res) => {
+app.get('/api/notes', (req, res) => {
     res.json(db);
 })
 
 //POST API route
-app.post('/api', (req, res) => {
+app.post('/api/notes', (req, res) => {
+    req.body.id = uuidv4();
+    db.push(req.body);
+    fs.writeFile('./db/db.json', JSON.stringify(db), function (err) {
+        if (err) throw err
+        console.log('Done!')
+    })
     //create response that shows our request in json format
     res.json(req.body);
-
-        //to append new content to db.json, we need to read the file  
-    fs.readFile('Develop/db/db.json', 'utf-8', function (err, data) {
-        if (err) throw err
-        //then convert it's contents to a JS object using JSON.parse
-        var objectArr = JSON.parse(data)
-        //push the object to the objectArr
-        objectArr.push(req.body)
-        //we now have an array with an object
-        console.log(objectArr)
-
-        //create new file with new objectArr and convert the data into JSON format
-        fs.writeFile('Develop/db/db.json', JSON.stringify(objectArr), 'utf-8', function (err) {
-            if (err) throw err
-            console.log('Done!')
-        })
-    })
 })
+
+//DELETE API route
+app.delete('/api/notes/:id', (req, res) => {
+    //destructure req object
+    const { id } = req.params;
     
+    //iterate over db array to compare ids. if ids are equal, delete from array
+    for(let i=0; i<db.length; i++) {
+        if (id === db[i].id) {
+            db.splice(i, 1)
+        } else {
+            res.status(404).send();
+        }
+    }
     
+    //write new db array to db.json file
+    fs.writeFile('./db/db.json', JSON.stringify(db), function(err){
+        if (err) throw err
+    })
+
+    res.send('DONE!');
+})
+
 
 
 
@@ -60,6 +72,3 @@ app.listen(PORT, () => {
 });
 
 
-//   need to add validation to post request route 
-//   why is data formatting all squished in db.json after posting?
-//   insomnia is requiring square brackets...this makes json file have an array inside the existing array...likely because im using array push method...look into another solution
