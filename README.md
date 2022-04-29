@@ -8,6 +8,8 @@
 
   ## Installation: 
   Clone repository. Type 'node server' in the command line to start server. Add and delete notes as you please.
+  OR
+  View deployed application on Heroku: https://serene-reaches-14293.herokuapp.com/ 
 
   ## License: 
   'This project is licensed under MIT: https://opensource.org/licenses/MIT
