@@ -6,6 +6,7 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const PORT = process.env.PORT || 3005;
+const host = '0.0.0.0';
 const fs = require('fs');
 
 //require db.json file
@@ -67,7 +68,7 @@ app.delete('/api/notes/:id', (req, res) => {
 
 
 
-app.listen(PORT, () => {
+app.listen(PORT, host, () => {
     console.log(`API server now on port ${PORT}!`);
 });
 
